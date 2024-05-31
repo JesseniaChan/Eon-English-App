@@ -1,45 +1,94 @@
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { auth } from "../firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigation } from '@react-navigation/native';
+
 
 const LoginScreen = () => {
-  return (
-    <KeyboardAvoidingView
-        style={styles.container}
-        behavior='padding'
-    >
-        <View style={styles.inputContainer}>
-            <TextInput 
-                placeholder='Email'
-                // value={}
-                // onChangeText={text => }
-                style={styles.input}
-            />
-            <TextInput 
-                placeholder='Password'
-                // value={}
-                // onChangeText={text => }
-                style={styles.input}
-                secureTextEntry
-            />
-        </View>
+    const[email, setEmail] = useState('');
+    const[password, setPassword] = useState('');
 
-        <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-                onPress={() => {}}
-                style={styles.button}
-            >
-                <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-                onPress={() => {}}
-                style={[styles.button, styles.buttonOutline]}
-            >
-                <Text style={styles.buttonOutlineText}>Register</Text>
-            </TouchableOpacity>
-        </View>
-    </KeyboardAvoidingView>
-  )
-}
+    const navigation = useNavigation();
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            if(user) {
+                navigation.replace("Home")
+            }
+        })
+
+        return unsubscribe;
+    }, [])
+
+    const handleSignUp = () => {
+        createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            // Signed up 
+            const user = userCredential.user;
+            console.log("Registered with: " + user.email);
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorCode)
+            console.log(errorMessage);
+        });
+    }
+
+    const handleLogIn = () => {
+        signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            // Signed up 
+            const user = userCredential.user;
+            console.log("Logged in with: " + user.email);
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorCode)
+            console.log(errorMessage);
+        });
+    }
+
+    return (
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior='padding'
+        >
+            <View style={styles.inputContainer}>
+                <TextInput 
+                    placeholder='Email'
+                    value={email}
+                    onChangeText={text => setEmail(text)}
+                    style={styles.input}
+                />
+                <TextInput 
+                    placeholder='Password'
+                    value={password}
+                    onChangeText={text => setPassword(text)}
+                    style={styles.input}
+                    secureTextEntry
+                />
+            </View>
+
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity 
+                    onPress={handleLogIn}
+                    style={styles.button}
+                >
+                    <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    onPress={handleSignUp}
+                    style={[styles.button, styles.buttonOutline]}
+                >
+                    <Text style={styles.buttonOutlineText}>Register</Text>
+                </TouchableOpacity>
+            </View>
+        </KeyboardAvoidingView>
+    )
+    }
 
 export default LoginScreen
 
