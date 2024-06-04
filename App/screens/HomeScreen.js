@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Button } from 'react-native';
 import React from 'react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
@@ -26,6 +26,10 @@ const HomeScreen = () => {
       >
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
+      <Button
+        title="Go to Vocab Match Screen"
+        onPress={() => navigation.navigate('VocabMatchScreen')}
+      />
     </View>
   )
 }
